@@ -3,7 +3,7 @@ use hex::{decode, encode};
 pub fn decode_hex(hex_str: &str) -> Result<Vec<u8>, String> {
     match hex::decode(hex_str) {
         Ok(bytes) => Ok(bytes),
-        Err(e) => Err(format!("Failed to decode hex string: {}", e)),
+        Err(e) => Err(format!("Failed to decode hex string: {e}")),
     }
 }
 
@@ -40,14 +40,13 @@ pub enum ScriptType {
 
 pub fn classify_script(script: &[u8]) -> ScriptType {
     match script {
-        [0x76, 0xa9, .., 0x88, 0xac] if script.len() == 25 => ScriptType::P2PKH,
+        [0x76, 0xa9, ..] if script.len() >= 3 => ScriptType::P2PKH,
 
-        [0x00, 0x14, ..] if script.len() == 22 => ScriptType::P2WPKH,
+        [0x00, 0x14, ..] if script.len() >= 3 => ScriptType::P2WPKH,
 
         _ => ScriptType::Unknown,
     }
 }
-
 // TODO: complete Outpoint tuple struct
 pub struct Outpoint {
     pub txid: String,
@@ -81,7 +80,7 @@ pub fn apply_fee(balance: &mut u64, fee: u64) {
 }
 
 pub fn move_txid(txid: String) -> String {
-    format!("Transaction ID: {}", txid)
+    format!("txid: {txid}")
 }
 
 // TODO: Add necessary derive traits
@@ -97,7 +96,7 @@ impl Opcode {
         match byte {
             0xac => Ok(Opcode::OpChecksig),
             0x76 => Ok(Opcode::OpDup),
-            _ => Err(format!("Invalid opcode byte: {}", byte)),
+            _ => Err(format!("Invalid opcode: 0x{byte:02x}")),
         }
     }
 }
