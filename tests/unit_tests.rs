@@ -45,8 +45,11 @@ fn test_script_classification() {
 
 #[test]
 fn test_outpoint_destructuring() {
-    let op = Outpoint("abcd1234".to_string(), 1);
-    let Outpoint(txid, vout) = op;
+    let op = Outpoint {
+        txid: "abcd1234".to_string(),
+        vout: 1,
+    };
+    let Outpoint { txid, vout } = op;
     assert_eq!(txid, "abcd1234");
     assert_eq!(vout, 1);
 }
@@ -81,12 +84,15 @@ fn test_move_txid() {
 
 #[test]
 fn test_opcode_parsing() {
-    assert_eq!(Opcode::from_byte(0xac), Ok(Opcode::OpChecksig));
+    match Opcode::from_byte(0xac) {
+        Ok(Opcode::OpChecksig) => (),
+        _ => panic!("Opcode parsing failed"),
+    }
     assert_eq!(Opcode::from_byte(0x76), Ok(Opcode::OpDup));
-    assert_eq!(
-        Opcode::from_byte(0x00),
-        Err("Invalid opcode: 0x00".to_string())
-    );
+    match Opcode::from_byte(0x00) {
+        Err(err) if err == "Invalid opcode: 0x00".to_string() => (),
+        _ => panic!("Opcode parsing failed"),
+    }
 }
 
 #[test]
